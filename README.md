@@ -36,7 +36,7 @@ or
  - Open your `/app/src/main/res/values/strings.xml` file
  - Add the following:
  ```
- <string name="base_url">1067156413331261</string>
+ <string name="base_url">https://tiny.com.vn/api/v1/</string>
  ```
  - Open the `/app/manifest/AndroidManifest.xml` file.
  - Add a `uses-permission` element to the manifest:
