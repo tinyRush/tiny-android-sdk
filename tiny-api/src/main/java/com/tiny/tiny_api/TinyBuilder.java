@@ -11,8 +11,6 @@ public class TinyBuilder {
     private static TinyBuilder singleton = null;
     static String baseUrl;
     static Headers headers;
-    static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
 
 
     public static TinyBuilder getInstance() {

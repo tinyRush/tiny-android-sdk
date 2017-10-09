@@ -3,12 +3,15 @@ package com.tiny.tiny_api;
 import android.util.Patterns;
 
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 
 /**
  * Created by meo on 9/15/17.
  */
 
 public class Tiny {
+
+    static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public static RequestCreator post(String path){
        return new RequestCreator(handleURL(path), RequestCreator.REQUEST_POST);
@@ -28,8 +31,6 @@ public class Tiny {
 
 
     private static HttpUrl handleURL(String path){
-        HttpUrl url;
-
         if (Patterns.WEB_URL.matcher(path).matches()) {
             return HttpUrl.parse(path);
         } else {
