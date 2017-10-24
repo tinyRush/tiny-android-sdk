@@ -1,13 +1,9 @@
 package com.tiny.tiny_api;
 
-import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,7 +21,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * Created by meo on 9/19/17.
@@ -39,83 +34,83 @@ public class RequestCreator {
     public static final String REQUEST_DELETE = "REQUEST_DELETE";
     public static final String REQUEST_PATCH = "REQUEST_PATCH";
 
-    private FormBody.Builder bodyBuilder = null;
-    private Headers.Builder headers = null;
-    private MultipartBody.Builder multipartBulder = null;
-    private HttpUrl url;
-    private OkHttpClient client = null;
-    private JSONObject jsonObject;
+    private FormBody.Builder mBodyBuilder = null;
+    private Headers.Builder mHeaders = null;
+    private MultipartBody.Builder mMultipartBulder = null;
+    private HttpUrl mUrl;
+    private OkHttpClient mClient = null;
+    private JSONObject mJsonObject;
     private final String method;
 
     public RequestCreator(HttpUrl url, String method) {
         this.method = method;
-        this.url = url;
-        this.client = new OkHttpClient();
+        this.mUrl = url;
+        this.mClient = new OkHttpClient();
     }
 
     public RequestCreator addInterceptor(Interceptor interceptor) {
-        this.client = client.newBuilder().addInterceptor(interceptor).build();
+        this.mClient = mClient.newBuilder().addInterceptor(interceptor).build();
         return this;
     }
 
     public RequestCreator addQuery(String key, Object value) {
-        url.newBuilder().addQueryParameter(key, value.toString());
+        mUrl.newBuilder().addQueryParameter(key, value.toString());
         return this;
     }
 
-    public RequestCreator addQueries(HashMap<String, ?> hashMap) {
+    public RequestCreator addQueries(Map<String, ?> hashMap) {
         Set set = hashMap.entrySet();
         Iterator iterator = set.iterator();
         while (iterator.hasNext()) {
             Map.Entry mentry = (Map.Entry) iterator.next();
-            url.newBuilder().addQueryParameter(mentry.getKey().toString(), mentry.getValue().toString());
+            mUrl.newBuilder().addQueryParameter(mentry.getKey().toString(), mentry.getValue().toString());
         }
         return this;
     }
 
     public RequestCreator addHeader(String key, Object value) {
-        if (headers == null) {
-            headers = new Headers.Builder();
+        if (mHeaders == null) {
+            mHeaders = new Headers.Builder();
         }
-        headers.add(key, value.toString());
+        mHeaders.add(key, value.toString());
         return this;
     }
 
-    public RequestCreator addHeaders(HashMap<String, ?> hashMap) {
-        if (headers == null) {
-            headers = new Headers.Builder();
+    public RequestCreator addHeaders(Map<String, ?> hashMap) {
+        if (mHeaders == null) {
+            mHeaders = new Headers.Builder();
         }
         Set set = hashMap.entrySet();
         Iterator iterator = set.iterator();
         while (iterator.hasNext()) {
             Map.Entry mentry = (Map.Entry) iterator.next();
-            headers.add(mentry.getKey().toString(), mentry.getValue().toString());
+            mHeaders.add(mentry.getKey().toString(), mentry.getValue().toString());
         }
         return this;
     }
 
     public RequestCreator addField(String key, Object value) {
-        if (jsonObject == null) {
-            jsonObject = new JSONObject();
+        if (mJsonObject == null) {
+            mJsonObject = new JSONObject();
         }
         try {
-            jsonObject.put(key, value.toString());
+            mJsonObject.put(key, value.toString());
         } catch (JSONException e) {
 
         }
         return this;
     }
 
-    public RequestCreator addFields(HashMap<String, ?> hashMap) {
-        if (jsonObject == null) {
-            jsonObject = new JSONObject();
+    public RequestCreator addFields(Map<String, ?> hashMap) {
+        if (mJsonObject == null) {
+            mJsonObject = new JSONObject();
         }
         try {
             Set set = hashMap.entrySet();
             Iterator iterator = set.iterator();
             while (iterator.hasNext()) {
                 Map.Entry mentry = (Map.Entry) iterator.next();
-                jsonObject.put(mentry.getKey().toString(), mentry.getValue().toString());
+                mJsonObject.put(mentry.getKey().toString(), mentry.getValue().toString());
             }
         } catch (JSONException e) {
 
@@ -124,21 +119,31 @@ public class RequestCreator {
     }
 
     public RequestCreator addPart(String mediaType, String filename, String sourceFile) {
-        if (multipartBulder == null) {
-            multipartBulder = new MultipartBody.Builder();
-            multipartBulder.setType(MultipartBody.FORM);
+        if (mMultipartBulder == null) {
+            mMultipartBulder = new MultipartBody.Builder();
+            mMultipartBulder.setType(MultipartBody.FORM);
         }
-        multipartBulder
+        mMultipartBulder
                 .addFormDataPart("uploaded_file", filename, RequestBody.create(MediaType.parse(mediaType), sourceFile));
         return this;
     }
 
-    public RequestCreator addPart(String key, String value) {
-        if (multipartBulder == null) {
-            multipartBulder = new MultipartBody.Builder();
-            multipartBulder.setType(MultipartBody.FORM);
+    public RequestCreator addPart(RequestBody requestBody) {
+        if (mMultipartBulder == null) {
+            mMultipartBulder = new MultipartBody.Builder();
+            mMultipartBulder.setType(MultipartBody.FORM);
         }
-        multipartBulder
+        mMultipartBulder
+                .addPart(requestBody);
+        return this;
+    }
+
+    public RequestCreator addPart(String key, String value) {
+        if (mMultipartBulder == null) {
+            mMultipartBulder = new MultipartBody.Builder();
+            mMultipartBulder.setType(MultipartBody.FORM);
+        }
+        mMultipartBulder
                 .addFormDataPart(key, value);
         return this;
     }
@@ -150,20 +155,20 @@ public class RequestCreator {
                 request.get();
                 break;
             case REQUEST_POST:
-                if (bodyBuilder == null) {
-                    bodyBuilder = new FormBody.Builder();
+                if (mBodyBuilder == null) {
+                    mBodyBuilder = new FormBody.Builder();
                 }
                 request.post(requestBody);
                 break;
             case REQUEST_PUT:
-                if (bodyBuilder == null) {
-                    bodyBuilder = new FormBody.Builder();
+                if (mBodyBuilder == null) {
+                    mBodyBuilder = new FormBody.Builder();
                 }
                 request.put(requestBody);
                 break;
             case REQUEST_PATCH:
-                if (bodyBuilder == null) {
-                    bodyBuilder = new FormBody.Builder();
+                if (mBodyBuilder == null) {
+                    mBodyBuilder = new FormBody.Builder();
                 }
                 request.patch(requestBody);
                 break;
@@ -174,15 +179,15 @@ public class RequestCreator {
     }
 
     private RequestBody checkBody() {
-        if (multipartBulder != null) {
-            if (jsonObject != null) {
-                multipartBulder.addPart(RequestBody.create(Tiny.JSON, jsonObject.toString()));
+        if (mMultipartBulder != null) {
+            if (mJsonObject != null) {
+                mMultipartBulder.addPart(RequestBody.create(Tiny.JSON, mJsonObject.toString()));
             } else {
-                return multipartBulder.build();
+                return mMultipartBulder.build();
             }
         } else {
-            if (jsonObject != null) {
-                return RequestBody.create(Tiny.JSON, jsonObject.toString());
+            if (mJsonObject != null) {
+                return RequestBody.create(Tiny.JSON, mJsonObject.toString());
             }
         }
         return null;
@@ -190,11 +195,11 @@ public class RequestCreator {
 
     public void enqueue(final TinyCallback callback) {
         Request.Builder request = new Request.Builder();
-        request.url(url);
-        if (headers != null) request.headers(headers.build());
+        request.url(mUrl);
+        if (mHeaders != null) request.headers(mHeaders.build());
         handleBody(request);
 
-        client.newCall(request.build()).enqueue(new Callback() {
+        mClient.newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 if (callback != null) {
@@ -216,10 +221,10 @@ public class RequestCreator {
 
     public Object execute() throws IOException {
         Request.Builder request = new Request.Builder();
-        request.url(url);
-        if (headers != null) request.headers(headers.build());
+        request.url(mUrl);
+        if (mHeaders != null) request.headers(mHeaders.build());
         handleBody(request);
-        try (Response response = client.newCall(request.build()).execute()) {
+        try (Response response = mClient.newCall(request.build()).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
             return response.body().string();
         }
